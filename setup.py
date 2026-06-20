@@ -4,7 +4,7 @@ setup(
     name="aiwave",
     version="0.1.0",
     description="AIWave API — One API key for 50+ Chinese AI models (DeepSeek, GLM, Kimi, etc.), OpenAI compatible",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="AIWave",
     author_email="support@aiwave.live",
