@@ -6,3 +6,4 @@ build/
 .env
 .venv/
 venv/
+\n# IDE\n.vscode/\n.idea/\n*.swp\n*.swo\n*~\n
