@@ -2,7 +2,7 @@
 
 Usage:
     from aiwave import AIWave
-    client = AIWave(api_key="sk-your-key")
+    client = AIWave(api_key="YOUR_API_KEY_HERE")
 
 Get your API key at: https://aiwave.live
 """
