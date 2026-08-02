@@ -1,19 +1,14 @@
 # AIWave Python SDK
 
-**One API key for 50+ Chinese AI models — OpenAI compatible, zero code changes.**
+One API key for 48 Chinese AI models — OpenAI compatible, with a drop-in OpenAI SDK interface.
 
 [![PyPI](https://img.shields.io/pypi/v/aiwave)](https://pypi.org/project/aiwave/)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Supported Models
+## Live model catalog
 
-- **DeepSeek**: V4 Pro, V3, R1 (Reasoning)
-- **GLM**: GLM-5.1, GLM-5, GLM-4-Flash
-- **Kimi**: Kimi VL (Vision), Kimi Thinking
-- **ERNIE**: ERNIE 4.5, ERNIE Speed
-- **Qwen**: Qwen 3, Qwen 3 VL
-- *50+ more models*
+The catalog and USD token prices change over time. See the [live AIWave pricing page](https://aiwave.live/pricing) for the current 48-model catalog instead of relying on a hard-coded list.
 
 ## Installation
 
@@ -26,7 +21,7 @@ pip install aiwave
 ```python
 from aiwave import AIWave
 
-client = AIWave(api_key="sk-your-key-here")
+client = AIWave(api_key="YOUR_API_KEY_HERE")
 
 response = client.chat.completions.create(
     model="deepseek-chat",
@@ -35,15 +30,17 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+Replace `YOUR_API_KEY_HERE` with a key from [aiwave.live](https://aiwave.live). Never commit a real API key to a repository.
+
 ## Drop-in OpenAI Replacement
 
-Already using the OpenAI SDK? Just swap the base URL:
+Already using the OpenAI SDK? Change only the base URL:
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-your-key-here",
+    api_key="YOUR_API_KEY_HERE",
     base_url="https://aiwave.live/v1"
 )
 # Everything else stays the same
@@ -51,12 +48,17 @@ client = OpenAI(
 
 ## Why AIWave?
 
-- **One API key** for 50+ models — no per-model registration
-- **Pay-as-you-go** — only pay what you use, no minimum deposit
-- **Start free** — free credits on signup
-- **OpenAI compatible** — works with your existing code and tools
+- **One API key** for 48 Chinese AI models
+- **OpenAI compatible** — keep your existing SDK and tools
+- **Pay-as-you-go** USD billing with no minimum deposit
+- **$1 free credit** on signup for testing
 
-**[Get your API key →](https://aiwave.live)**
+## Resources
+
+- [Live pricing and model catalog](https://aiwave.live/pricing)
+- [AIWave developer blog](https://aiwave.live/blog/)
+- [Node.js SDK](https://github.com/AIWaveAPI/aiwave-sdk-node)
+- [Get an API key](https://aiwave.live)
 
 ## License
 
