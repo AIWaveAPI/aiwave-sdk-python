@@ -1,14 +1,14 @@
 # AIWave Python SDK
 
-One API key for 48 Chinese AI models — OpenAI compatible, with a drop-in OpenAI SDK interface.
+**AIWave — OpenAI-compatible route for Chinese AI models with USD billing**
 
 [![PyPI](https://img.shields.io/pypi/v/aiwave)](https://pypi.org/project/aiwave/)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Live model catalog
+AIWave gives developers one OpenAI-compatible API route for Chinese AI model families such as DeepSeek, GLM, Kimi, Qwen, ERNIE, MiniMax, Doubao, StepFun, and MiMo.
 
-The catalog and USD token prices change over time. See the [live AIWave pricing page](https://aiwave.live/pricing) for the current 48-model catalog instead of relying on a hard-coded list.
+Use this SDK when you want a Python client path to AIWave while keeping model IDs, dated USD rates, and request-level usage evidence visible during testing.
 
 ## Installation
 
@@ -16,49 +16,60 @@ The catalog and USD token prices change over time. See the [live AIWave pricing 
 pip install aiwave
 ```
 
-## Quick Start
+## Quick start with the AIWave client
 
 ```python
+import os
 from aiwave import AIWave
 
-client = AIWave(api_key="YOUR_API_KEY_HERE")
+client = AIWave(api_key=os.environ["AIWAVE_API_KEY"])
 
 response = client.chat.completions.create(
-    model="deepseek-chat",
-    messages=[{"role": "user", "content": "Explain quantum computing in 3 sentences"}]
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello"}],
 )
+
 print(response.choices[0].message.content)
+print(response.usage)
 ```
 
-Replace `YOUR_API_KEY_HERE` with a key from [aiwave.live](https://aiwave.live). Never commit a real API key to a repository.
+Store API keys outside source control. The example above uses an environment variable and does not include a real key.
 
-## Drop-in OpenAI Replacement
+## OpenAI-compatible client path
 
-Already using the OpenAI SDK? Change only the base URL:
+For supported chat requests, you can also use the official OpenAI Python client with the AIWave base URL:
 
 ```python
+import os
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="YOUR_API_KEY_HERE",
-    base_url="https://aiwave.live/v1"
+    api_key=os.environ["AIWAVE_API_KEY"],
+    base_url="https://aiwave.live/v1",
 )
-# Everything else stays the same
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+
+print(response.usage)
 ```
 
-## Why AIWave?
+## What to verify before production
 
-- **One API key** for 48 Chinese AI models
-- **OpenAI compatible** — keep your existing SDK and tools
-- **Pay-as-you-go** USD billing with no minimum deposit
-- **$1 free credit** on signup for testing
+- Confirm the current model ID in the [AIWave model catalog](https://aiwave.live/models/).
+- Check the dated USD rates on the [AIWave pricing page](https://aiwave.live/pricing).
+- Run one representative workload and review the request-level usage record.
+- Keep timeout, retry, privacy, and model-quality acceptance checks in your own application.
 
 ## Resources
 
+- [AIWave home](https://aiwave.live/)
 - [Live pricing and model catalog](https://aiwave.live/pricing)
-- [AIWave developer blog](https://aiwave.live/blog/)
+- [API docs](https://aiwave.live/docs/)
+- [Developer field notes](https://aiwave.live/blog/)
 - [Node.js SDK](https://github.com/AIWaveAPI/aiwave-sdk-node)
-- [Get an API key](https://aiwave.live)
 
 ## License
 
