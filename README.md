@@ -1,10 +1,10 @@
 # AIWave Python SDK
 
-**One OpenAI-compatible API for Chinese AI models — and AI video. 97 public routes, 10 Chinese families, 10 public video routes.**
+**One OpenAI-compatible API for Chinese AI models — and AI video. 97 public routes, 10 Chinese families, 13 public video routes.**
 
 [![PyPI](https://img.shields.io/pypi/v/aiwave)](https://pypi.org/project/aiwave/)
 [![Models](https://img.shields.io/badge/public%20rate%20card-97%20routes-blue)](https://aiwave.live/models)
-[![Video](https://img.shields.io/badge/public%20video%20routes-10-purple)](https://aiwave.live/models)
+[![Video](https://img.shields.io/badge/public%20video%20routes-13-purple)](https://aiwave.live/models)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
