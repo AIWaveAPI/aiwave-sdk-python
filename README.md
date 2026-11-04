@@ -10,7 +10,7 @@
 
 AIWave gives developers one OpenAI-compatible API route for Chinese AI model families — DeepSeek, GLM, Kimi, Qwen, MiniMax, Doubao, StepFun, MiMo — plus AI video routes (Kling, Seedance, Hailuo, Wan, Vidu).
 
-Get a key at [aiwave.live/register](https://aiwave.live/register) — free tier included.
+Get a key at [aiwave.live/register](https://aiwave.live/register).
 
 Use this SDK when you want a Python client path to AIWave while keeping model IDs, dated USD rates, and request-level usage evidence visible during testing.
 
