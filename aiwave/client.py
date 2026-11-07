@@ -37,12 +37,17 @@ class VideoAPI:
         """
         body = {"model": model, "prompt": prompt}
         body.update(kwargs)
-        resp = self._client.post("/video/generations", cast_to=SimpleNamespace, body=body)
-        data = getattr(resp, "data", resp)
-        task_id = getattr(data, "task_id", None) or getattr(data, "id", None)
+        resp = self._client.post("/video/generations", cast_to=dict, body=body)
+        data = resp.get("data", resp) if isinstance(resp, dict) else None
+        task_id = data.get("task_id") or data.get("id") if isinstance(data, dict) else None
+        if not isinstance(task_id, str) or not task_id:
+            raise RuntimeError(
+                "Video submission returned no task ID; check task history and usage "
+                "before submitting another paid job."
+            )
         return SimpleNamespace(
             task_id=task_id,
-            status=getattr(data, "status", "queued"),
+            status=data.get("status", "queued"),
             raw=data,
         )
 
@@ -52,12 +57,12 @@ class VideoAPI:
         Returns a namespace with `.status`, `.progress` and `.raw`.
         """
         resp = self._client.get(
-            f"/video/generations/{task_id}", cast_to=SimpleNamespace
+            f"/video/generations/{task_id}", cast_to=dict
         )
-        data = getattr(resp, "data", resp)
+        data = resp.get("data", resp) if isinstance(resp, dict) else None
         return SimpleNamespace(
-            status=getattr(data, "status", "unknown"),
-            progress=getattr(data, "progress", ""),
+            status=data.get("status", "unknown") if isinstance(data, dict) else "unknown",
+            progress=data.get("progress", "") if isinstance(data, dict) else "",
             raw=data,
         )
 
@@ -82,7 +87,7 @@ class VideoAPI:
             if st.status == "SUCCESS":
                 return st
             if st.status == "FAILURE":
-                reason = getattr(st.raw, "fail_reason", "unknown")
+                reason = st.raw.get("fail_reason", "unknown") if isinstance(st.raw, dict) else "unknown"
                 raise RuntimeError(f"Video generation failed upstream: {reason}")
             time.sleep(interval)
         raise TimeoutError(
