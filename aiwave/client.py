@@ -16,6 +16,7 @@ Get your API key at: https://aiwave.live
 import os
 import time
 from types import SimpleNamespace
+from typing import Any, Dict
 
 from openai import OpenAI
 
@@ -23,7 +24,7 @@ from openai import OpenAI
 class VideoAPI:
     """AIWave video generation routes.
 
-    Video routes are experimental and require a paid account group (from $5).
+    Video routes are experimental and require an eligible paid account group.
     Completion time varies; poll `status()` and retain the task ID.
     """
 
@@ -37,7 +38,8 @@ class VideoAPI:
         """
         body = {"model": model, "prompt": prompt}
         body.update(kwargs)
-        resp = self._client.post("/video/generations", cast_to=dict, body=body)
+        # OpenAI 1.x requires a parameterized mapping; 3.x accepts it too.
+        resp = self._client.post("/video/generations", cast_to=Dict[str, Any], body=body)
         data = resp.get("data", resp) if isinstance(resp, dict) else None
         task_id = data.get("task_id") or data.get("id") if isinstance(data, dict) else None
         if not isinstance(task_id, str) or not task_id:
@@ -57,7 +59,7 @@ class VideoAPI:
         Returns a namespace with `.status`, `.progress` and `.raw`.
         """
         resp = self._client.get(
-            f"/video/generations/{task_id}", cast_to=dict
+            f"/video/generations/{task_id}", cast_to=Dict[str, Any]
         )
         data = resp.get("data", resp) if isinstance(resp, dict) else None
         return SimpleNamespace(
