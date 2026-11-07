@@ -24,7 +24,7 @@ class VideoAPI:
     """AIWave video generation routes.
 
     Video routes are experimental and require a paid account group (from $5).
-    A single shot takes 5-11 minutes; poll `status()` until it reports success.
+    Completion time varies; poll `status()` and retain the task ID.
     """
 
     def __init__(self, client):
@@ -87,8 +87,8 @@ class VideoAPI:
             time.sleep(interval)
         raise TimeoutError(
             f"Video job {task_id} did not finish within {timeout}s. "
-            "Single shots take 5-11 minutes; if it stays at 0% progress for "
-            "over 3 minutes, the upstream channel likely failed — submit again."
+            "Keep the task ID and check its status and usage before "
+            "submitting another paid job."
         )
 
 
