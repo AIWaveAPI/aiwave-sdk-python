@@ -17,6 +17,7 @@ import os
 import time
 from types import SimpleNamespace
 from typing import Any, Dict
+from urllib.parse import quote
 
 from openai import OpenAI
 
@@ -65,8 +66,10 @@ class VideoAPI:
 
         Returns a namespace with `.status`, `.progress` and `.raw`.
         """
+        if not isinstance(task_id, str) or not task_id:
+            raise ValueError("status requires a non-empty task ID")
         resp = self._client.get(
-            f"/video/generations/{task_id}", cast_to=Dict[str, Any]
+            f"/video/generations/{quote(task_id, safe='')}", cast_to=Dict[str, Any]
         )
         data = resp.get("data", resp) if isinstance(resp, dict) else None
         return SimpleNamespace(
