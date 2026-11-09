@@ -54,6 +54,46 @@ class VideoAPITests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "synthetic upstream error"):
             client.video.wait("synthetic-task", interval=0, timeout=1)
 
+    def test_transient_submission_failure_is_not_resubmitted(self):
+        for status in (429, 503):
+            with self.subTest(status=status):
+                seen = []
+
+                def handler(request):
+                    seen.append(request.method)
+                    if len(seen) == 1:
+                        return httpx.Response(status, json={"error": {"message": "busy"}})
+                    return httpx.Response(200, json={"data": {"task_id": "duplicate"}})
+
+                client = AIWave(
+                    api_key="synthetic-only",
+                    http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+                )
+                try:
+                    with self.assertRaises(Exception):
+                        client.video.generate(model="synthetic-model", prompt="synthetic prompt")
+                    self.assertEqual(seen, ["POST"])
+                finally:
+                    client.close()
+
+    def test_connection_failure_is_not_resubmitted(self):
+        seen = []
+
+        def handler(request):
+            seen.append(request.method)
+            raise httpx.ConnectError("synthetic disconnect")
+
+        client = AIWave(
+            api_key="synthetic-only",
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+        )
+        try:
+            with self.assertRaises(Exception):
+                client.video.generate(model="synthetic-model", prompt="synthetic prompt")
+            self.assertEqual(seen, ["POST"])
+        finally:
+            client.close()
+
 
 if __name__ == "__main__":
     unittest.main()
