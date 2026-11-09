@@ -40,6 +40,40 @@ class VideoAPITests(unittest.TestCase):
         self.assertEqual(seen, [("POST", "/v1/video/generations"),
                                 ("GET", "/v1/video/generations/synthetic-task")])
 
+    def test_status_treats_opaque_task_id_as_one_path_segment(self):
+        seen = []
+
+        def handler(request):
+            seen.append(str(request.url))
+            return httpx.Response(200, json={"data": {"status": "SUCCESS"}})
+
+        client = AIWave(
+            api_key="synthetic-only",
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+            max_retries=0,
+        )
+        self.addCleanup(client.close)
+        client.video.status("job/part?mode=unsafe#fragment")
+        self.assertEqual(
+            seen, ["https://aiwave.live/v1/video/generations/job%2Fpart%3Fmode%3Dunsafe%23fragment"]
+        )
+
+    def test_status_refuses_empty_task_id_before_network(self):
+        seen = []
+
+        def handler(request):
+            seen.append(str(request.url))
+            raise AssertionError("request should not be sent")
+
+        client = AIWave(
+            api_key="synthetic-only",
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+        )
+        self.addCleanup(client.close)
+        with self.assertRaisesRegex(ValueError, "non-empty task ID"):
+            client.video.status("")
+        self.assertEqual(seen, [])
+
     def test_missing_task_id_does_not_look_like_success(self):
         client, _ = self.client_with_responses({"data": {"status": "IN_PROGRESS"}})
         with self.assertRaisesRegex(RuntimeError, "task ID") as caught:
@@ -53,6 +87,46 @@ class VideoAPITests(unittest.TestCase):
         )
         with self.assertRaisesRegex(RuntimeError, "synthetic upstream error"):
             client.video.wait("synthetic-task", interval=0, timeout=1)
+
+    def test_transient_submission_failure_is_not_resubmitted(self):
+        for status in (429, 503):
+            with self.subTest(status=status):
+                seen = []
+
+                def handler(request):
+                    seen.append(request.method)
+                    if len(seen) == 1:
+                        return httpx.Response(status, json={"error": {"message": "busy"}})
+                    return httpx.Response(200, json={"data": {"task_id": "duplicate"}})
+
+                client = AIWave(
+                    api_key="synthetic-only",
+                    http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+                )
+                try:
+                    with self.assertRaises(Exception):
+                        client.video.generate(model="synthetic-model", prompt="synthetic prompt")
+                    self.assertEqual(seen, ["POST"])
+                finally:
+                    client.close()
+
+    def test_connection_failure_is_not_resubmitted(self):
+        seen = []
+
+        def handler(request):
+            seen.append(request.method)
+            raise httpx.ConnectError("synthetic disconnect")
+
+        client = AIWave(
+            api_key="synthetic-only",
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+        )
+        try:
+            with self.assertRaises(Exception):
+                client.video.generate(model="synthetic-model", prompt="synthetic prompt")
+            self.assertEqual(seen, ["POST"])
+        finally:
+            client.close()
 
 
 if __name__ == "__main__":
