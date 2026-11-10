@@ -37,7 +37,7 @@ print(response.choices[0].message.content)
 print(response.usage)
 ```
 
-Store API keys outside source control. The example above uses an environment variable and does not include a real key.
+Store API keys outside source control. The example above uses an environment variable and does not include a real key. The AIWave client accepts an explicit `api_key` or `AIWAVE_API_KEY`; it never takes `OPENAI_API_KEY` from another provider's environment.
 
 ## OpenAI-compatible client path
 

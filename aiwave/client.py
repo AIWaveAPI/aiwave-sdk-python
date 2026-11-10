@@ -115,10 +115,10 @@ class AIWave(OpenAI):
     DEFAULT_BASE_URL = "https://aiwave.live/v1"
 
     def __init__(self, api_key=None, base_url=None, **kwargs):
-        api_key = api_key or os.environ.get("AIWAVE_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        api_key = api_key or os.environ.get("AIWAVE_API_KEY")
         if not api_key:
             raise ValueError(
-                "API key required. Get one at https://aiwave.live or set AIWAVE_API_KEY env var."
+                "AIWave API key required. Pass api_key or set AIWAVE_API_KEY."
             )
         super().__init__(
             api_key=api_key,
