@@ -1,10 +1,10 @@
-"""AIWave Client — Drop-in OpenAI compatible client.
+"""AIWave client for supported OpenAI-compatible API operations.
 
 Usage:
     from aiwave import AIWave
     client = AIWave(api_key="YOUR_API_KEY_HERE")
 
-    # Chat / reasoning — identical to the OpenAI SDK
+    # Chat completions through the OpenAI client interface
     client.chat.completions.create(model="deepseek-v4-flash", messages=[...])
 
     # AI video — one key, 13 video routes
@@ -20,6 +20,8 @@ from typing import Any, Dict
 from urllib.parse import quote
 
 from openai import OpenAI
+
+_UNSET = object()
 
 
 class VideoAPI:
@@ -110,13 +112,14 @@ class VideoAPI:
 
 
 class AIWave(OpenAI):
-    """AIWave API client, fully compatible with OpenAI SDK."""
+    """AIWave API client for compatible chat requests and video routes."""
 
     DEFAULT_BASE_URL = "https://aiwave.live/v1"
 
-    def __init__(self, api_key=None, base_url=None, **kwargs):
-        api_key = api_key or os.environ.get("AIWAVE_API_KEY")
-        if not api_key:
+    def __init__(self, api_key=_UNSET, base_url=None, **kwargs):
+        if api_key is _UNSET:
+            api_key = os.environ.get("AIWAVE_API_KEY")
+        if not isinstance(api_key, str) or not api_key.strip():
             raise ValueError(
                 "AIWave API key required. Pass api_key or set AIWAVE_API_KEY."
             )
