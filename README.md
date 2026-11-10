@@ -79,8 +79,13 @@ done = client.video.wait(job.task_id)   # polls every 15s, 15 min max
 print(done.status)
 ```
 
-Video routes are experimental and need a paid account group (from $5). A single
-shot takes 5-11 minutes.
+Video routes are experimental and need an eligible paid account group.
+Completion time varies. Keep the task ID and check its status and usage before
+submitting another paid job if polling times out.
+The SDK does not automatically retry a video submission after a 429, 503, or
+connection error: the provider may already have accepted the paid job. Check
+task history and usage before deciding whether to submit again. Status polling
+remains retryable.
 
 ## What to verify before production
 

@@ -16,6 +16,8 @@ Get your API key at: https://aiwave.live
 import os
 import time
 from types import SimpleNamespace
+from typing import Any, Dict
+from urllib.parse import quote
 
 from openai import OpenAI
 
@@ -23,8 +25,8 @@ from openai import OpenAI
 class VideoAPI:
     """AIWave video generation routes.
 
-    Video routes are experimental and require a paid account group (from $5).
-    A single shot takes 5-11 minutes; poll `status()` until it reports success.
+    Video routes are experimental and require an eligible paid account group.
+    Completion time varies; poll `status()` and retain the task ID.
     """
 
     def __init__(self, client):
@@ -37,12 +39,25 @@ class VideoAPI:
         """
         body = {"model": model, "prompt": prompt}
         body.update(kwargs)
-        resp = self._client.post("/video/generations", cast_to=SimpleNamespace, body=body)
-        data = getattr(resp, "data", resp)
-        task_id = getattr(data, "task_id", None) or getattr(data, "id", None)
+        # OpenAI 1.x requires a parameterized mapping; 3.x accepts it too.
+        # A timeout or transient error may occur after the provider accepted a
+        # paid job. Retrying this POST could create another billable job.
+        resp = self._client.post(
+            "/video/generations",
+            cast_to=Dict[str, Any],
+            body=body,
+            options={"max_retries": 0},
+        )
+        data = resp.get("data", resp) if isinstance(resp, dict) else None
+        task_id = data.get("task_id") or data.get("id") if isinstance(data, dict) else None
+        if not isinstance(task_id, str) or not task_id:
+            raise RuntimeError(
+                "Video submission returned no task ID; check task history and usage "
+                "before submitting another paid job."
+            )
         return SimpleNamespace(
             task_id=task_id,
-            status=getattr(data, "status", "queued"),
+            status=data.get("status", "queued"),
             raw=data,
         )
 
@@ -51,13 +66,15 @@ class VideoAPI:
 
         Returns a namespace with `.status`, `.progress` and `.raw`.
         """
+        if not isinstance(task_id, str) or not task_id:
+            raise ValueError("status requires a non-empty task ID")
         resp = self._client.get(
-            f"/video/generations/{task_id}", cast_to=SimpleNamespace
+            f"/video/generations/{quote(task_id, safe='')}", cast_to=Dict[str, Any]
         )
-        data = getattr(resp, "data", resp)
+        data = resp.get("data", resp) if isinstance(resp, dict) else None
         return SimpleNamespace(
-            status=getattr(data, "status", "unknown"),
-            progress=getattr(data, "progress", ""),
+            status=data.get("status", "unknown") if isinstance(data, dict) else "unknown",
+            progress=data.get("progress", "") if isinstance(data, dict) else "",
             raw=data,
         )
 
@@ -82,13 +99,13 @@ class VideoAPI:
             if st.status == "SUCCESS":
                 return st
             if st.status == "FAILURE":
-                reason = getattr(st.raw, "fail_reason", "unknown")
+                reason = st.raw.get("fail_reason", "unknown") if isinstance(st.raw, dict) else "unknown"
                 raise RuntimeError(f"Video generation failed upstream: {reason}")
             time.sleep(interval)
         raise TimeoutError(
             f"Video job {task_id} did not finish within {timeout}s. "
-            "Single shots take 5-11 minutes; if it stays at 0% progress for "
-            "over 3 minutes, the upstream channel likely failed — submit again."
+            "Keep the task ID and check its status and usage before "
+            "submitting another paid job."
         )
 
 
