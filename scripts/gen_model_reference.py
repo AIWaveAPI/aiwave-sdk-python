@@ -14,9 +14,11 @@ read the same endpoint. If claims pass, the reference is current.
 """
 import argparse
 import json
+import re
 import sys
 import urllib.request
 from datetime import date, datetime, timezone
+from pathlib import Path
 
 ENDPOINT = "https://aiwave.live/api/pricing"
 
@@ -51,13 +53,8 @@ def family_of(model_name: str) -> str:
     return "Other"
 
 
-def is_video(model_name: str) -> bool:
-    n = model_name.lower()
-    return any(k in n for k in ("kling", "seedance", "hailuo", "wan3.0-video", "vidu"))
-
-
-def render(models: list) -> str:
-    version = str(models[0].get("pricing_version", "unknown")) if models else "unknown"
+def render(models: list, pricing_version: str) -> str:
+    version = str(pricing_version)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     lines = [
@@ -68,7 +65,7 @@ def render(models: list) -> str:
         f"- Generated: {generated}",
         f"- Source: `{ENDPOINT}` (public, no key required)",
         f"- Pricing version: `{version[:16]}…`",
-        f"- Routes on the public rate card: **{len(models)}**",
+        f"- Models listed on public rate card: **{len(models)}**",
         "",
         "Regenerate with:",
         "",
@@ -78,6 +75,7 @@ def render(models: list) -> str:
         "",
         "Dated USD rates per model: https://aiwave.live/pricing",
         "Live availability: https://aiwave.live/models",
+        "Request shape is not encoded in the pricing endpoint; check the model-specific docs before calling an API.",
         "",
         "---",
         "",
@@ -94,12 +92,11 @@ def render(models: list) -> str:
             continue
         lines.append(f"## {label}")
         lines.append("")
-        lines.append("| Model ID | Kind |")
-        lines.append("|----------|------|")
+        lines.append("| Model ID |")
+        lines.append("|----------|")
         for m in sorted(items, key=lambda x: (x.get("model_name") or "").lower()):
             name = m.get("model_name") or m.get("id") or "?"
-            kind = "video generation" if is_video(name) else "chat / reasoning"
-            lines.append(f"| `{name}` | {kind} |")
+            lines.append(f"| `{name}` |")
         lines.append("")
 
     lines += [
@@ -116,6 +113,7 @@ def render(models: list) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="MODEL_REFERENCE.md")
+    ap.add_argument("--check", action="store_true", help="compare the committed reference with the live endpoint")
     args = ap.parse_args()
 
     data = fetch()
@@ -123,11 +121,28 @@ def main():
     if not models:
         print("ERROR: endpoint returned no models — refusing to write an empty reference.", file=sys.stderr)
         sys.exit(1)
+    version = data.get("pricing_version")
+    if not version:
+        print("ERROR: endpoint returned no top-level pricing_version.", file=sys.stderr)
+        sys.exit(1)
 
-    out = render(models)
+    out = render(models, pricing_version=version)
+    if args.check:
+        try:
+            current = Path(args.out).read_text(encoding="utf-8")
+        except OSError as exc:
+            print(f"ERROR: cannot read {args.out}: {exc}", file=sys.stderr)
+            sys.exit(1)
+        # Generated time is informational; the catalog content and source version must match.
+        stable = lambda text: re.sub(r"(?m)^- Generated: .*\n", "- Generated: <ignored>\n", text)
+        if stable(current) != stable(out):
+            print(f"ERROR: {args.out} differs from the live catalog; regenerate it.", file=sys.stderr)
+            sys.exit(1)
+        print(f"PASS: {args.out} matches the live catalog ({len(models)} models)")
+        return
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(out)
-    print(f"Wrote {args.out}: {len(models)} routes, generated {date.today().isoformat()}")
+    print(f"Wrote {args.out}: {len(models)} models, generated {date.today().isoformat()}")
 
 
 if __name__ == "__main__":
