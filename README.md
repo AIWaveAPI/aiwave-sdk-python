@@ -38,9 +38,6 @@ print(response.usage)
 ```
 
 Store API keys outside source control. The example above uses an environment variable and does not include a real key. The AIWave client accepts an explicit `api_key` or `AIWAVE_API_KEY`; it never takes `OPENAI_API_KEY` from another provider's environment.
-An explicitly empty or invalid `api_key` is rejected, even when an ambient
-`AIWAVE_API_KEY` exists, so a misconfigured caller does not silently bill a
-different AIWave account.
 
 ## OpenAI-compatible client path
 
