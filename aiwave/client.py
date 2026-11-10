@@ -7,7 +7,7 @@ Usage:
     # Chat completions through the OpenAI client interface
     client.chat.completions.create(model="deepseek-v4-flash", messages=[...])
 
-    # AI video — one key, 13 video routes
+    # AI video — check the exact model and account-group access before use
     job = client.video.generate(model="kling-v2-6", prompt="A red car drifting...")
     done = client.video.wait(job.task_id)
 
