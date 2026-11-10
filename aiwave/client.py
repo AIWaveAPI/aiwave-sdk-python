@@ -39,6 +39,8 @@ class VideoAPI:
 
         Returns a namespace with `.task_id` and `.status`.
         """
+        if not isinstance(prompt, str) or not prompt.strip():
+            raise ValueError("prompt must be a non-empty string")
         body = {"model": model, "prompt": prompt}
         body.update(kwargs)
         # OpenAI 1.x requires a parameterized mapping; 3.x accepts it too.

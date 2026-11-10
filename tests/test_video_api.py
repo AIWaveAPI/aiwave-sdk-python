@@ -80,6 +80,14 @@ class VideoAPITests(unittest.TestCase):
             client.video.generate(model="synthetic-model", prompt="synthetic prompt")
         self.assertIn("check task history and usage", str(caught.exception))
 
+    def test_invalid_video_prompts_are_rejected_before_paid_submission(self):
+        client, seen = self.client_with_responses({"data": {"task_id": "unexpected"}})
+        for prompt in ("", "   ", None, {}):
+            with self.subTest(prompt=prompt):
+                with self.assertRaisesRegex(ValueError, "non-empty string"):
+                    client.video.generate(prompt=prompt)
+        self.assertEqual(seen, [])
+
     def test_failed_status_exposes_reason_without_resubmitting(self):
         client, _ = self.client_with_responses(
             {"data": {"task_id": "synthetic-task"}},
