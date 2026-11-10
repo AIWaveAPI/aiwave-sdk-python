@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Reject an explicitly empty or invalid `api_key` rather than silently using an ambient `AIWAVE_API_KEY`. Omitting `api_key` still uses the AIWave environment key.
+- Narrow package and client descriptions to supported operations; compatibility depends on the requested API operation.
+
 ## v0.2.0 (2026-11-04)
 
 - **AI video support** — `client.video.generate(model, prompt)` submits a job, `client.video.status(task_id)` checks it, `client.video.wait(task_id)` polls until done (15 min default timeout, raises on upstream failure)

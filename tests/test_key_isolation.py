@@ -35,6 +35,13 @@ class KeyIsolationTests(unittest.TestCase):
             client = self.make_client(api_key="synthetic-explicit")
             self.assertEqual(client.api_key, "synthetic-explicit")
 
+    def test_explicit_empty_or_invalid_key_does_not_use_ambient_key(self):
+        with patch.dict(os.environ, {"AIWAVE_API_KEY": "synthetic-env"}, clear=True):
+            for api_key in ("", "   ", None):
+                with self.subTest(api_key=api_key):
+                    with self.assertRaisesRegex(ValueError, "AIWave API key"):
+                        self.make_client(api_key=api_key)
+
 
 if __name__ == "__main__":
     unittest.main()
