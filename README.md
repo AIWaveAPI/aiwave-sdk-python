@@ -89,6 +89,8 @@ The SDK does not automatically retry a video submission after a 429, 503, or
 connection error: the provider may already have accepted the paid job. Check
 task history and usage before deciding whether to submit again. Status polling
 remains retryable.
+Custom polling intervals must be 1–2,147,483.647 seconds; invalid intervals
+and non-finite timeouts are rejected before a status request.
 
 ## What to verify before production
 
