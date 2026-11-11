@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Recognize the generic and realtime video adapters' terminal status spellings so completed or failed jobs do not poll until timeout.
 - Refuse invalid video polling intervals and timeouts before any status request; intervals shorter than one second can flood status checks.
 - Reject an explicitly empty or invalid `api_key` rather than silently using an ambient `AIWAVE_API_KEY`. Omitting `api_key` still uses the AIWave environment key.
 - Reject empty, whitespace-only, or non-string video prompts locally before sending a paid submission.

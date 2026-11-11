@@ -115,6 +115,22 @@ class VideoAPITests(unittest.TestCase):
             client.video.wait("synthetic-task", interval=1, timeout=10 ** 400)
         self.assertEqual(seen, [])
 
+    def test_wait_recognizes_realtime_and_openai_video_terminal_statuses(self):
+        for status in ("succeeded", "completed"):
+            with self.subTest(status=status):
+                client, seen = self.client_with_responses(
+                    {"data": {"task_id": "synthetic-task"}}, {"data": {"status": status}}
+                )
+                self.assertEqual(client.video.wait("synthetic-task", interval=1, timeout=0.01).status, status)
+                self.assertEqual(len(seen), 1)
+        client, seen = self.client_with_responses(
+            {"data": {"task_id": "synthetic-task"}},
+            {"data": {"status": "failed", "fail_reason": "synthetic terminal failure"}},
+        )
+        with self.assertRaisesRegex(RuntimeError, "synthetic terminal failure"):
+            client.video.wait("synthetic-task", interval=1, timeout=0.01)
+        self.assertEqual(len(seen), 1)
+
     def test_transient_submission_failure_is_not_resubmitted(self):
         for status in (429, 503):
             with self.subTest(status=status):

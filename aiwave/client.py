@@ -117,9 +117,12 @@ class VideoAPI:
         deadline = time.time() + timeout
         while time.time() < deadline:
             st = self.status(task_id)
-            if st.status == "SUCCESS":
+            # Generic tasks use SUCCESS/FAILURE; realtime and video adapters
+            # can return succeeded/failed or completed/failed.
+            status = st.status.lower() if isinstance(st.status, str) else ""
+            if status in {"success", "succeeded", "completed"}:
                 return st
-            if st.status == "FAILURE":
+            if status in {"failure", "failed"}:
                 reason = st.raw.get("fail_reason", "unknown") if isinstance(st.raw, dict) else "unknown"
                 raise RuntimeError(f"Video generation failed upstream: {reason}")
             time.sleep(interval)
