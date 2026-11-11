@@ -13,6 +13,7 @@ Usage:
 
 Get your API key at: https://aiwave.live
 """
+import math
 import os
 import time
 from types import SimpleNamespace
@@ -22,6 +23,18 @@ from urllib.parse import quote
 from openai import OpenAI
 
 _UNSET = object()
+_MAX_POLL_INTERVAL_SECONDS = (2 ** 31 - 1) / 1000
+
+
+def _valid_duration(value, minimum, maximum=None):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value < minimum:
+        return False
+    if maximum is not None and value > maximum:
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 class VideoAPI:
@@ -87,7 +100,7 @@ class VideoAPI:
 
         Args:
             task_id: the id returned by generate()
-            interval: seconds between polls (default 15)
+            interval: seconds between polls (1 to 2147483.647; default 15)
             timeout: seconds to wait in total (default 900 = 15 minutes)
             poll: if False, returns the current status immediately
 
@@ -97,6 +110,10 @@ class VideoAPI:
         """
         if not poll:
             return self.status(task_id)
+        if not _valid_duration(interval, 1, _MAX_POLL_INTERVAL_SECONDS):
+            raise ValueError("interval must be a finite number from 1 to 2147483.647 seconds")
+        if not _valid_duration(timeout, 0):
+            raise ValueError("timeout must be a finite non-negative number of seconds")
         deadline = time.time() + timeout
         while time.time() < deadline:
             st = self.status(task_id)

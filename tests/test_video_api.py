@@ -94,7 +94,26 @@ class VideoAPITests(unittest.TestCase):
             {"data": {"status": "FAILURE", "fail_reason": "synthetic upstream error"}},
         )
         with self.assertRaisesRegex(RuntimeError, "synthetic upstream error"):
-            client.video.wait("synthetic-task", interval=0, timeout=1)
+            client.video.wait("synthetic-task", interval=1, timeout=1)
+
+    def test_invalid_polling_cadence_refuses_before_status_request(self):
+        client, seen = self.client_with_responses(
+            {"data": {"task_id": "synthetic-task"}},
+            {"data": {"status": "IN_PROGRESS"}},
+        )
+        for case, interval in (("zero", 0), ("nan", float("nan")),
+                               ("infinite", float("inf")), ("fractional", 0.1),
+                               ("above_timer_limit", 2147483.648), ("huge", 10 ** 400)):
+            with self.subTest(case=case):
+                with self.assertRaisesRegex(ValueError, "interval"):
+                    client.video.wait("synthetic-task", interval=interval, timeout=0.02)
+        with self.assertRaisesRegex(ValueError, "timeout"):
+            client.video.wait("synthetic-task", interval=1, timeout=float("nan"))
+        with self.assertRaisesRegex(ValueError, "timeout"):
+            client.video.wait("synthetic-task", interval=1, timeout=float("inf"))
+        with self.assertRaisesRegex(ValueError, "timeout"):
+            client.video.wait("synthetic-task", interval=1, timeout=10 ** 400)
+        self.assertEqual(seen, [])
 
     def test_transient_submission_failure_is_not_resubmitted(self):
         for status in (429, 503):
