@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.1 (2026-11-13)
+
 - Stop video polling near its requested timeout instead of sleeping a full interval past the deadline; use a monotonic clock for elapsed time.
 - Recognize the generic and realtime video adapters' terminal status spellings so completed or failed jobs do not poll until timeout.
 - Refuse invalid video polling intervals and timeouts before any status request; intervals shorter than one second can flood status checks.
