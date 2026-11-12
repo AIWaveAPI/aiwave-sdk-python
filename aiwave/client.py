@@ -114,8 +114,8 @@ class VideoAPI:
             raise ValueError("interval must be a finite number from 1 to 2147483.647 seconds")
         if not _valid_duration(timeout, 0):
             raise ValueError("timeout must be a finite non-negative number of seconds")
-        deadline = time.time() + timeout
-        while time.time() < deadline:
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
             st = self.status(task_id)
             # Generic tasks use SUCCESS/FAILURE; realtime and video adapters
             # can return succeeded/failed or completed/failed.
@@ -125,7 +125,7 @@ class VideoAPI:
             if status in {"failure", "failed"}:
                 reason = st.raw.get("fail_reason", "unknown") if isinstance(st.raw, dict) else "unknown"
                 raise RuntimeError(f"Video generation failed upstream: {reason}")
-            time.sleep(interval)
+            time.sleep(min(interval, max(0, deadline - time.monotonic())))
         raise TimeoutError(
             f"Video job {task_id} did not finish within {timeout}s. "
             "Keep the task ID and check its status and usage before "

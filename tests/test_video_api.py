@@ -2,6 +2,7 @@
 
 import importlib
 from importlib.metadata import version
+import time
 import unittest
 
 from aiwave import AIWave
@@ -130,6 +131,19 @@ class VideoAPITests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "synthetic terminal failure"):
             client.video.wait("synthetic-task", interval=1, timeout=0.01)
         self.assertEqual(len(seen), 1)
+
+    def test_poll_timeout_does_not_sleep_past_requested_deadline(self):
+        client, seen = self.client_with_responses(
+            {"data": {"task_id": "synthetic-task"}},
+            {"data": {"status": "IN_PROGRESS"}},
+        )
+        started = time.monotonic()
+        with self.assertRaisesRegex(TimeoutError, "did not finish"):
+            client.video.wait("synthetic-task", interval=1, timeout=0.04)
+        elapsed = time.monotonic() - started
+        self.assertLess(elapsed, 0.7, f"40 ms timeout took {elapsed} seconds")
+        self.assertGreaterEqual(len(seen), 1)
+        self.assertLessEqual(len(seen), 2)
 
     def test_transient_submission_failure_is_not_resubmitted(self):
         for status in (429, 503):
