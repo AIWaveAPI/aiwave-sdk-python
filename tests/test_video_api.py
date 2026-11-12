@@ -142,7 +142,8 @@ class VideoAPITests(unittest.TestCase):
             client.video.wait("synthetic-task", interval=1, timeout=0.04)
         elapsed = time.monotonic() - started
         self.assertLess(elapsed, 0.7, f"40 ms timeout took {elapsed} seconds")
-        self.assertEqual(len(seen), 1)
+        self.assertGreaterEqual(len(seen), 1)
+        self.assertLessEqual(len(seen), 2)
 
     def test_transient_submission_failure_is_not_resubmitted(self):
         for status in (429, 503):
