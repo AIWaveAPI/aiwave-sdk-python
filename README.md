@@ -78,7 +78,7 @@ job = client.video.generate(
 )
 print(job.task_id)
 
-done = client.video.wait(job.task_id)   # polls every 15s, 15 min max
+done = client.video.wait(job.task_id)   # polls every 15s; 15 min deadline
 print(done.status)
 ```
 
@@ -91,6 +91,10 @@ task history and usage before deciding whether to submit again. Status polling
 remains retryable.
 Custom polling intervals must be 1–2,147,483.647 seconds; invalid intervals
 and non-finite timeouts are rejected before a status request.
+`wait(timeout=...)` checks its deadline before and after each status request.
+An in-flight synchronous request can still outlast that deadline. Set an
+appropriate per-request `timeout` on `AIWave(...)` when your application needs
+a tighter wall-clock bound; custom HTTP transports may ignore request timeouts.
 
 ## What to verify before production
 
