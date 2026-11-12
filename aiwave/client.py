@@ -101,7 +101,8 @@ class VideoAPI:
         Args:
             task_id: the id returned by generate()
             interval: seconds between polls (1 to 2147483.647; default 15)
-            timeout: seconds to wait in total (default 900 = 15 minutes)
+            timeout: polling deadline in seconds (default 900); an in-flight
+                synchronous status request may outlast it
             poll: if False, returns the current status immediately
 
         Raises:
@@ -117,6 +118,10 @@ class VideoAPI:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             st = self.status(task_id)
+            # A slow status call must not turn a result received after the
+            # deadline into an on-time success.
+            if time.monotonic() >= deadline:
+                break
             # Generic tasks use SUCCESS/FAILURE; realtime and video adapters
             # can return succeeded/failed or completed/failed.
             status = st.status.lower() if isinstance(st.status, str) else ""
