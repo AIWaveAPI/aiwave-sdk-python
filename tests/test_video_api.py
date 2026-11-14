@@ -145,6 +145,17 @@ class VideoAPITests(unittest.TestCase):
         self.assertGreaterEqual(len(seen), 1)
         self.assertLessEqual(len(seen), 2)
 
+    def test_wait_rejects_a_terminal_status_returned_after_deadline(self):
+        client, _ = self.client_with_responses({}, {})
+
+        def delayed_status(_task_id):
+            time.sleep(0.05)
+            return type("Status", (), {"status": "SUCCESS", "raw": {}})()
+
+        client.video.status = delayed_status
+        with self.assertRaisesRegex(TimeoutError, "did not finish"):
+            client.video.wait("synthetic-task", interval=1, timeout=0.01)
+
     def test_transient_submission_failure_is_not_resubmitted(self):
         for status in (429, 503):
             with self.subTest(status=status):
