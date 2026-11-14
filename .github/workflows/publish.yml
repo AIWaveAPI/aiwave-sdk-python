@@ -4,11 +4,18 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish, e.g. v0.2.1
+        required: true
+        type: string
 
 permissions: {}
 
 jobs:
   build:
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     if: github.repository == 'AIWaveAPI/aiwave-sdk-python' && !github.event.release.prerelease
     runs-on: ubuntu-latest
     permissions:
@@ -41,6 +48,8 @@ jobs:
           if-no-files-found: error
 
   publish:
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
