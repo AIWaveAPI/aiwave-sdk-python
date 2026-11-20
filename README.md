@@ -1,9 +1,9 @@
 # AIWave Python SDK
 
-**One OpenAI-compatible API for Chinese AI models and video. 97 model IDs on the public rate card, 10 Chinese families, 13 video IDs on the public rate card.**
+**One OpenAI-compatible API for Chinese AI models and video. 91 model IDs on the public rate card, 10 Chinese families, 13 video IDs on the public rate card.**
 
 [![PyPI](https://img.shields.io/pypi/v/aiwave)](https://pypi.org/project/aiwave/)
-[![Models](https://img.shields.io/badge/model%20IDs-97-blue)](https://aiwave.live/models)
+[![Models](https://img.shields.io/badge/model%20IDs-91-blue)](https://aiwave.live/models)
 [![Video](https://img.shields.io/badge/video%20IDs-13-purple)](https://aiwave.live/models)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

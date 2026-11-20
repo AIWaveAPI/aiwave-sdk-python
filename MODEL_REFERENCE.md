@@ -2,10 +2,10 @@
 
 **Auto-generated from the live public endpoint. Do not edit by hand.**
 
-- Generated: 2026-11-04 19:46 UTC
+- Generated: 2026-11-20 15:42 UTC
 - Source: `https://aiwave.live/api/pricing` (public, no key required)
 - Pricing version: `a42d372ccf0b5dd1…`
-- Models listed on public rate card: **97**
+- Models listed on public rate card: **91**
 
 Regenerate with:
 
@@ -27,6 +27,7 @@ Request shape is not encoded in the pricing endpoint; check the model-specific d
 | `deepseek-v4-flash` |
 | `deepseek-v4-pro` |
 | `deepseek-v4.1-flash` |
+| `deepseek-v4.1-flash-1017` |
 
 ## GLM (Zhipu)
 
@@ -117,13 +118,6 @@ Request shape is not encoded in the pricing endpoint; check the model-specific d
 | `MiniMax-Hailuo-02` |
 | `MiniMax-Hailuo-2.3` |
 | `MiniMax-Hailuo-2.3-Fast` |
-| `MiniMax-M2` |
-| `MiniMax-M2.1` |
-| `MiniMax-M2.1-highspeed` |
-| `MiniMax-M2.5` |
-| `MiniMax-M2.5-highspeed` |
-| `MiniMax-M2.7` |
-| `MiniMax-M2.7-highspeed` |
 | `MiniMax-M3` |
 
 ## Video — Kling (Kuaishou)
