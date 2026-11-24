@@ -1,8 +1,9 @@
 """AIWave client for supported OpenAI-compatible API operations.
 
 Usage:
+    import os
     from aiwave import AIWave
-    client = AIWave(api_key="YOUR_API_KEY_HERE")
+    client = AIWave(api_key=os.environ["AIWAVE_API_KEY"])
 
     # Chat completions through the OpenAI client interface
     client.chat.completions.create(model="deepseek-v4-flash", messages=[...])
