@@ -12,6 +12,7 @@ Documentation and metadata only. No runtime behaviour changes.
 - Stop the video example from hard-coding an API key string on a page that asks readers to keep keys out of source.
 - Note that `kling-v2-6` is per-call while some Seedance IDs are token-priced, so `quota_type` has to be checked before estimating video spend.
 - Fix `aiwave.__version__`, which still reported `0.2.0` in the published 0.2.1 release. It now tracks `pyproject.toml` again.
+- `AGENTS.md` no longer hard-codes a model count. `/api/v1/pricing` is documented as the frozen 2026-10-24 51-row snapshot it actually is, not as a live source. The two endpoints share only 44 IDs.
 
 ## v0.2.1 (2026-11-13)
 
