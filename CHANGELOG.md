@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## v0.2.2 (2026-11-24)
+
+Documentation and metadata only. No runtime behaviour changes.
+
+- State that the 13 video IDs are a subset of the 91 catalog IDs, not an additional set.
+- Separate the OpenAI-compatible chat path from the experimental video path in the README introduction, and drop the claim that the client surfaces rates or usage evidence.
+- Document how to set `AIWAVE_API_KEY` before running the examples.
+- Stop the video example from hard-coding an API key string on a page that asks readers to keep keys out of source.
+- Note that `kling-v2-6` is per-call while some Seedance IDs are token-priced, so `quota_type` has to be checked before estimating video spend.
+- Fix `aiwave.__version__`, which still reported `0.2.0` in the published 0.2.1 release. It now tracks `pyproject.toml` again.
+
 ## v0.2.1 (2026-11-13)
 
 - Stop video polling near its requested timeout instead of sleeping a full interval past the deadline; use a monotonic clock for elapsed time.
